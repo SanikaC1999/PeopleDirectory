@@ -6,8 +6,8 @@ const PeopleDirectory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const peoplePerPage = 6;
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false); // State for detail modal
-  const [selectedPerson, setSelectedPerson] = useState(null); // State for selected person in detail modal
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedPerson, setSelectedPerson] = useState(null);
   const [newMember, setNewMember] = useState({
     name: '',
     username: '',
@@ -16,6 +16,7 @@ const PeopleDirectory = () => {
     status: 'Active',
     teams: []
   });
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: null }); // Sorting state
 
   useEffect(() => {
     // Generate fake data using faker
@@ -28,8 +29,8 @@ const PeopleDirectory = () => {
           username: faker.internet.userName(),
           role: faker.person.jobTitle(),
           email: faker.internet.email(),
-          status: "Active",
-          teams: ["Design", "Product", "Marketing", "Finance", "HR", "Sales"] // Sample teams
+          status: Math.random() > 0.5 ? "Active" : "Inactive", // Random status for testing
+          teams: ["Design", "Product", "Marketing", "Finance", "HR", "Sales"]
         });
       }
       setPeople(peopleData);
@@ -38,10 +39,24 @@ const PeopleDirectory = () => {
     generatePeople();
   }, []);
 
+  // Sorting logic
+  const sortedPeople = [...people].sort((a, b) => {
+    if (sortConfig.key) {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      return 0;
+    }
+    return 0;
+  });
+
   // Pagination logic
   const indexOfLastPerson = currentPage * peoplePerPage;
   const indexOfFirstPerson = indexOfLastPerson - peoplePerPage;
-  const currentPeople = people.slice(indexOfFirstPerson, indexOfLastPerson);
+  const currentPeople = sortedPeople.slice(indexOfFirstPerson, indexOfLastPerson);
 
   const handleNextPage = () => {
     if (currentPage < Math.ceil(people.length / peoplePerPage)) {
@@ -76,6 +91,14 @@ const PeopleDirectory = () => {
     setNewMember({ ...newMember, [e.target.name]: e.target.value });
   };
 
+  const handleSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
   const handleViewDetails = (person) => {
     setSelectedPerson(person);
     setIsDetailModalOpen(true);
@@ -83,22 +106,32 @@ const PeopleDirectory = () => {
 
   return (
     <div className="p-6 bg-white rounded shadow-md h-1200 flex flex-col">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">Team members</h2>
-        <button className="bg-purple-600 text-white px-4 py-2 rounded" onClick={handleAddMember}>
-          + Add Member
-        </button>
-      </div>
-
-      <div className="flex-1 overflow-y-auto"> {/* Scrollable main section */}
+<div className="flex justify-between items-center mb-4">
+  <div className="flex items-center space-x-2">
+    <h2 className="text-2xl font-semibold">Team members</h2>
+    <span className="text-sm bg-purple-100 text-purple-600 px-2 py-1 rounded-full">
+      {people.length} users
+    </span>
+  </div>
+  <button className="bg-blue-900 text-white px-4 py-2 rounded" onClick={handleAddMember}>
+    + Add Member
+  </button>
+</div>
+      <div className="flex-1 overflow-y-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-100 sticky top-0">
             <tr>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
+              <th
+                className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                onClick={() => handleSort('name')}
+              >
+                Name {sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
               </th>
-              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
+              <th
+                className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                onClick={() => handleSort('status')}
+              >
+                Status {sortConfig.key === 'status' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
               </th>
               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Role
@@ -135,7 +168,7 @@ const PeopleDirectory = () => {
                   </div>
                 </td>
                 <td className="px-4 py-2">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${person.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                     {person.status}
                   </span>
                 </td>
@@ -178,7 +211,7 @@ const PeopleDirectory = () => {
         <button
           onClick={handlePreviousPage}
           disabled={currentPage === 1}
-          className="bg-purple-600 text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-blue-900 text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Previous
         </button>
@@ -188,7 +221,7 @@ const PeopleDirectory = () => {
         <button
           onClick={handleNextPage}
           disabled={currentPage === Math.ceil(people.length / peoplePerPage)}
-          className="bg-purple-600 text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-blue-900 text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Next
         </button>
