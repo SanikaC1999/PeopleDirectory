@@ -6,6 +6,8 @@ const PeopleDirectory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const peoplePerPage = 6;
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false); // State for detail modal
+  const [selectedPerson, setSelectedPerson] = useState(null); // State for selected person in detail modal
   const [newMember, setNewMember] = useState({
     name: '',
     username: '',
@@ -27,7 +29,7 @@ const PeopleDirectory = () => {
           role: faker.person.jobTitle(),
           email: faker.internet.email(),
           status: "Active",
-          teams: ["Design", "Product", "Marketing"]
+          teams: ["Design", "Product", "Marketing", "Finance", "HR", "Sales"] // Sample teams
         });
       }
       setPeople(peopleData);
@@ -72,6 +74,11 @@ const PeopleDirectory = () => {
 
   const handleInputChange = (e) => {
     setNewMember({ ...newMember, [e.target.name]: e.target.value });
+  };
+
+  const handleViewDetails = (person) => {
+    setSelectedPerson(person);
+    setIsDetailModalOpen(true);
   };
 
   return (
@@ -135,7 +142,7 @@ const PeopleDirectory = () => {
                 <td className="px-4 py-2 text-sm text-gray-500">{person.role}</td>
                 <td className="px-4 py-2 text-sm text-gray-500">{person.email}</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
-                  {person.teams.map((team, index) => (
+                  {person.teams.slice(0, 3).map((team, index) => (
                     <span
                       key={index}
                       className="inline-block px-2 py-1 mr-1 mb-1 text-xs font-medium bg-blue-100 text-blue-800 rounded"
@@ -143,6 +150,14 @@ const PeopleDirectory = () => {
                       {team}
                     </span>
                   ))}
+                  {person.teams.length > 3 && (
+                    <button
+                      className="text-blue-600 text-xs font-semibold"
+                      onClick={() => handleViewDetails(person)}
+                    >
+                      +{person.teams.length - 3}
+                    </button>
+                  )}
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-500">
                   <button className="text-gray-500 hover:text-gray-700">
@@ -332,6 +347,92 @@ const PeopleDirectory = () => {
       </div>
     </div>
   </div>
+)}
+
+      {/* Detailed Information Modal */}
+      {isDetailModalOpen && selectedPerson && (
+      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
+        <div className="bg-white rounded-lg shadow-lg w-[40rem]">
+          {/* Header Section */}
+          <div className="flex justify-between items-center bg-indigo-600 text-white p-4 rounded-t-lg">
+            <div className="flex items-center">
+              <img
+                src={faker.image.avatar()}
+                alt="Profile"
+                className="rounded-full w-16 h-16"
+              />
+              <div className="ml-4">
+                <h2 className="text-xl font-semibold">{selectedPerson.name}</h2>
+                <p className="text-sm">@{selectedPerson.username}</p>
+                <p className="text-sm">{selectedPerson.role}</p>
+              </div>
+            </div>
+            <button
+              className="text-white hover:text-gray-300"
+              onClick={() => setIsDetailModalOpen(false)}
+            >
+              <i className="fas fa-times text-xl"></i>
+            </button>
+          </div>
+
+          {/* Personal Information Section */}
+          <div className="p-6">
+            <h3 className="text-lg font-semibold mb-3">Personal Information</h3>
+            <div className="bg-gray-100 p-4 rounded-lg shadow-sm">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-semibold">Date of Birth:</span> 29-04-2005
+                </div>
+                <div>
+                  <span className="font-semibold">Gender:</span> Female
+                </div>
+                <div>
+                  <span className="font-semibold">Nationality:</span> Canadian
+                </div>
+                <div>
+                  <span className="font-semibold">Contact no.:</span> 1234567890
+                </div>
+                <div>
+                  <span className="font-semibold">E-mail Address:</span> {selectedPerson.email}
+                </div>
+                <div>
+                  <span className="font-semibold">Work email Address:</span> {selectedPerson.email}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Research & Publication Section */}
+          <div className="px-6 pb-6">
+            <h3 className="text-lg font-semibold mb-3">Research & Publication</h3>
+            <div className="bg-gray-100 p-4 rounded-lg shadow-sm">
+              <p className="font-semibold">
+                AI and User Experience: The Future of Design
+              </p>
+              <p className="text-sm text-gray-600">
+                Published in the Journal of Modern Design • 2022
+              </p>
+              <p className="text-sm text-gray-600">
+                AI, IoT-based real-time condition monitoring of Electrical Machines using Python language Abstract:
+                Maintaining induction motors in good working order before they fail benefits small...
+              </p>
+              <a href="#" className="text-orange-600 font-semibold text-sm mt-2 inline-flex items-center">
+                <i className="fas fa-arrow-right mr-1"></i> SEE PUBLICATION
+              </a>
+            </div>
+          </div>
+
+          {/* Close Button */}
+          <div className="flex justify-end p-6">
+            <button
+              onClick={() => setIsDetailModalOpen(false)} // Close the modal on click
+              className="bg-indigo-600 text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
 )}
     </div>
   );
