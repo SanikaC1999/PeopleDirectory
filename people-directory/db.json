@@ -1,0 +1,20 @@
+{
+  "users": [
+    {
+      "id": "6bd4",
+      "firstName": "Sanika",
+      "lastName": "Chitale",
+      "email": "sanuchitale.1@gmail.com",
+      "phone": "8956106560",
+      "password": "Pradnya@123"
+    },
+    {
+      "id": "1c75",
+      "firstName": "Ashutosh",
+      "lastName": "Green",
+      "email": "sanket@gmail.com",
+      "phone": "6019521325",
+      "password": "Ashutosh@123"
+    }
+  ]
+}
