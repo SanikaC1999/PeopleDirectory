@@ -20,6 +20,9 @@ const PeopleDirectory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('All');
   const [filterTeam, setFilterTeam] = useState('All');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isRoleOptionsOpen, setIsRoleOptionsOpen] = useState(false);
+  const [isTeamOptionsOpen, setIsTeamOptionsOpen] = useState(false);
 
   useEffect(() => {
     // Generate fake data using faker
@@ -116,56 +119,132 @@ const PeopleDirectory = () => {
     setIsDetailModalOpen(true);
   };
 
+  const toggleFilter = () => {
+    setIsFilterOpen(!isFilterOpen);
+    setIsRoleOptionsOpen(false);
+    setIsTeamOptionsOpen(false);
+  };
+
+  const toggleRoleOptions = () => {
+    setIsRoleOptionsOpen(!isRoleOptionsOpen);
+    setIsTeamOptionsOpen(false);
+  };
+
+  const toggleTeamOptions = () => {
+    setIsTeamOptionsOpen(!isTeamOptionsOpen);
+    setIsRoleOptionsOpen(false);
+  };
+
   return (
-    <div className="p-6 bg-white rounded shadow-md h-1200 flex flex-col">
+<div className="p-6 bg-white rounded shadow-md h-1200 flex flex-col">
+      {/* Header Section */}
       <div className="flex justify-between items-center mb-4">
+        {/* Left Section: Team members and user count */}
         <div className="flex items-center space-x-2">
           <h2 className="text-2xl font-semibold">Team members</h2>
           <span className="text-sm bg-purple-100 text-purple-600 px-2 py-1 rounded-full">
             {filteredPeople.length} users
           </span>
         </div>
-        <button className="bg-blue-900 text-white px-4 py-2 rounded" onClick={handleAddMember}>
-          + Add Member
-        </button>
+        
+        {/* Right Section: Search, Filter, and Add Member */}
+        <div className="flex items-center space-x-4">
+          <div className="relative flex-grow">
+            <input
+              type="text"
+              placeholder="Search by name"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="p-2 border rounded w-64 focus:outline-none focus:ring-2 focus:ring-purple-600"
+            />
+            <svg
+              className="absolute top-3 right-3 w-5 h-5 text-purple-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M21 21l-4.35-4.35m2.35-7.65a8 8 0 11-16 0 8 8 0 0116 0z"
+              />
+            </svg>
+          </div>
+          <div className="relative">
+            <button
+              className="p-2 bg-gray-200 rounded focus:outline-none"
+              onClick={toggleFilter}
+            >
+              <svg
+                className="w-6 h-6 text-gray-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1h-4l-4 5v5a1 1 0 01-.293.707l-2 2A1 1 0 019 19v-4l-4-5H3a1 1 0 01-1-1V4z"
+                />
+              </svg>
+            </button>
+            {isFilterOpen && (
+              <div className="absolute top-12 right-0 w-64 bg-white border rounded shadow-lg p-4 z-10">
+                <h3 className="font-semibold mb-2">Filters</h3>
+                <div className="mb-2">
+                  <button
+                    className="w-full text-left p-2 border rounded bg-gray-100 hover:bg-gray-200 focus:outline-none"
+                    onClick={toggleRoleOptions}
+                  >
+                    Roles
+                  </button>
+                  {isRoleOptionsOpen && (
+                    <select
+                      value={filterRole}
+                      onChange={(e) => setFilterRole(e.target.value)}
+                      className="p-2 border rounded w-full mt-2 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    >
+                      <option value="All">All Roles</option>
+                      <option value="Product Manager">Product Manager</option>
+                      <option value="Frontend Developer">Frontend Developer</option>
+                      <option value="Backend Developer">Backend Developer</option>
+                      <option value="Designer">Designer</option>
+                    </select>
+                  )}
+                </div>
+                <div>
+                  <button
+                    className="w-full text-left p-2 border rounded bg-gray-100 hover:bg-gray-200 focus:outline-none"
+                    onClick={toggleTeamOptions}
+                  >
+                    Teams
+                  </button>
+                  {isTeamOptionsOpen && (
+                    <select
+                      value={filterTeam}
+                      onChange={(e) => setFilterTeam(e.target.value)}
+                      className="p-2 border rounded w-full mt-2 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    >
+                      <option value="All">All Teams</option>
+                      <option value="Design">Design</option>
+                      <option value="Product">Product</option>
+                      <option value="Marketing">Marketing</option>
+                      <option value="Finance">Finance</option>
+                      <option value="HR">HR</option>
+                      <option value="Sales">Sales</option>
+                    </select>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          <button className="bg-purple-600 text-white px-4 py-2 rounded">+ Add Member</button>
+        </div>
       </div>
-
-      {/* Search and Filter Controls */}
-      <div className="flex items-center mb-4 space-x-4">
-        <input
-          type="text"
-          placeholder="Search by name"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="p-2 border rounded w-1/3 focus:outline-none focus:ring-2 focus:ring-purple-600"
-        />
-        <select
-          value={filterRole}
-          onChange={(e) => setFilterRole(e.target.value)}
-          className="p-2 border rounded w-1/4 focus:outline-none focus:ring-2 focus:ring-purple-600"
-        >
-          <option value="All">All Roles</option>
-          <option value="Product Manager">Product Manager</option>
-          <option value="Frontend Developer">Frontend Developer</option>
-          <option value="Backend Developer">Backend Developer</option>
-          <option value="Designer">Designer</option>
-          {/* Add more roles as needed */}
-        </select>
-        <select
-          value={filterTeam}
-          onChange={(e) => setFilterTeam(e.target.value)}
-          className="p-2 border rounded w-1/4 focus:outline-none focus:ring-2 focus:ring-purple-600"
-        >
-          <option value="All">All Teams</option>
-          <option value="Design">Design</option>
-          <option value="Product">Product</option>
-          <option value="Marketing">Marketing</option>
-          <option value="Finance">Finance</option>
-          <option value="HR">HR</option>
-          <option value="Sales">Sales</option>
-        </select>
-      </div>
-
       <div className="flex-1 overflow-y-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-100 sticky top-0">
